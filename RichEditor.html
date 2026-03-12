@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>富文本编辑与调色工作台</title>
+    <link rel="stylesheet" href="frontend/css/style.css">
+</head>
+
+<body>
+    <div class="left-panel">
+        <h3>富文本编辑区</h3>
+        <div class="toolbar">
+            <button class="btn" onclick="wrap('<b>','</b>')"><b>B</b></button>
+            <button class="btn" onclick="wrap('<i>','</i>')"><i>I</i></button>
+
+            <button class="btn" onclick="applySize()">应用字号</button>
+            <input type="number" id="sizeInput" value="16" min="1" max="500"
+                style="width: 50px; padding: 2px; border: 1px solid #ccc; border-radius: 4px;">
+
+
+            <button class="btn" onclick="applyColor()">应用颜色</button>
+            <span id="curColorHex" style="font-size:12px; font-family:monospace; color: #666;">#000000FF</span>
+            <button class="btn" onclick="removeFormat()" title="清除选中文本的格式">清除格式</button>
+            <button class="btn" onclick="selectAll()" style="margin-left: auto;">全选</button>
+            <button class="btn" onclick="toggleSymbolModal()">Ω 符号库</button>
+        </div>
+        <textarea id="editor" class="editor-area" placeholder="快捷键：
+Ctrl + B：为选中 / 光标处文本添加粗体格式
+Ctrl + I：为选中 / 光标处文本添加斜体格式
+Ctrl + Z：撤销上一步编辑操作
+Ctrl + Y：重做已撤销的编辑操作
+Ctrl + Alt + S：为选中 / 光标处文本应用字号格式
+Ctrl + Alt + C：为选中 / 光标处文本应用颜色格式"
+        ></textarea>
+
+        <div class="preview-header" style="display: flex; align-items: center; gap: 10px; margin-top: 20px; margin-bottom: 10px;">
+            <h3 style="margin: 0;">效果实时预览</h3>
+
+            <div class="default-color-group">
+                <div id="colorDot" class="color-indicator" style="background: #000000;"></div>
+                <span>默认字色:</span>
+                <input type="text" id="defaultColorInput" class="default-color-input"
+                       placeholder="#000000"
+                       oninput="updateDefaultColor(this.value)">
+            </div>
+
+            <button class="btn" onclick="document.getElementById('bgInput').click()" style="font-size: 12px; margin-left: auto;">更换背景</button>
+            <button class="btn" onclick="resetBg()" style="font-size: 12px;">重置</button>
+            <input type="file" id="bgInput" hidden accept="image/*" onchange="changePreviewBg(this)">
+        </div>
+
+        <div class="preview-container">
+            <div class="preview-area" id="preview"></div>
+        </div>
+
+        <div id="symbolModal" class="symbol-modal">
+            <div class="modal-header" id="symbolModalHeader">
+                <h3>特殊符号库</h3>
+                <button class="btn" onclick="toggleSymbolModal()" style="padding: 0 5px;">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="symbol-tabs" id="symbolTabs"></div>
+                <div id="symbolList" class="symbol-list">
+                    <div class="add-symbol-btn" onclick="addNewSymbol()">+</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="right-panel">
+        <h3>调色盘</h3>
+        <div class="color-preview-container">
+            <div class="color-preview-big">
+                <div id="mainPreview" class="color-inner" style="background-color: #000000ff;"></div>
+                <button class="color-picker-btn" onclick="openColorPicker()">取色器</button>
+                <input type="color" id="colorPickerInput" onchange="handleColorPicker(this.value)"
+                    style="display: none;">
+            </div>
+            <div class="color-picker-panel" id="colorPickerPanel">
+                <button class="color-picker-close" onclick="closeColorPicker()">×</button>
+                <h4>颜色选择器</h4>
+                <div class="color-picker-canvas-container" id="colorPickerCanvasContainer">
+                    <canvas id="colorPickerCanvas" class="color-picker-canvas"></canvas>
+                </div>
+                <div class="color-picker-hue-slider" id="hueSlider"></div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button class="btn" onclick="pickScreenColor()" title="吸取屏幕任意位置颜色">🔍屏幕取色</button>
+                    <button class="btn" onclick="confirmColorPicker()" style="flex: 1;">确认</button>
+                    <button class="btn" onclick="closeColorPicker()" style="flex: 1;">取消</button>
+                </div>
+            </div>
+        </div>
+        <div class="slider-group">
+            <label style="font-size:12px; color:#999;">HEX / HEXA (8位颜色码)</label>
+            <input type="text" id="hexDisplay" class="hex-input-box" value="#000000FF">
+            <div class="slider-item"><span>R</span><input type="range" id="r" min="0" max="255" value="0"></div>
+            <div class="slider-item"><span>G</span><input type="range" id="g" min="0" max="255" value="0"></div>
+            <div class="slider-item"><span>B</span><input type="range" id="b" min="0" max="255" value="0"></div>
+            <div class="slider-item"><span>A</span><input type="range" id="a" min="0" max="255" value="255"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top:10px;">
+            <h3>预设色库</h3>
+            <button class="btn" onclick="saveCustomColor()" style="padding: 2px 8px;">保存当前</button>
+        </div>
+        <div class="color-library-container">
+            <div class="color-tabs" id="colorTabs"></div>
+            <div id="colorLibrary" class="ui-library"></div>
+        </div>
+    </div>
+
+    <script src="frontend/js/app.js"></script>
+</body>
+
+</html>

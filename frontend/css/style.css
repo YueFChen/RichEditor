@@ -1,0 +1,669 @@
+:root {
+            --bg: #f0f2f5;
+            --panel: #ffffff;
+            --border: #dcdfe6;
+            --text-main: #303133;
+            --primary: #409eff;
+        }
+
+        body {
+            background: var(--bg);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            color: var(--text-main);
+            overflow: hidden;
+        }
+
+        .left-panel {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+        }
+
+        .right-panel {
+            width: 380px;
+            background: var(--panel);
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: -2px 0 8px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: visible;
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 5px 12px;
+            border: 1px solid var(--border);
+            background: #fff;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 13px;
+            transition: 0.2s;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            background: #f5f7fa;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .editor-area {
+            width: 100%;
+            height: 280px;
+            min-height: 280px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            outline: none;
+            box-sizing: border-box;
+            resize: vertical;
+            line-height: 1.5;
+            overflow-y: auto;
+        }
+
+        /* 辅助容器：负责居中和占据父级空间，提供居中环境并限制溢出 */
+        .preview-container {
+            width: 100%;
+            height: 600px;
+            /* 可根据布局替换为 calc(100vh - 400px) 等动态值 */
+            display: flex;
+            align-items: center;
+            /* 垂直居中核心：子元素在容器垂直方向居中 */
+            justify-content: center;
+            /* 水平居中核心：子元素在容器水平方向居中 */
+            overflow: hidden;
+            /* 必须：隐藏子元素缩放/超出产生的溢出内容 */
+            background: #e0e0e0;
+            /* 预览区背景，便于区分预览范围 */
+            border-radius: 8px;
+            position: relative;
+        }
+
+        /* 预览区：固定 16:9 宽高比，核心展示区域 */
+        .preview-area {
+
+            width: auto;
+            height: 100%;
+
+            aspect-ratio: 16 / 9;
+            /* 兼容低版本浏览器备选方案（可保留）：
+            width: 100%;
+            padding-top: 56.25%; // 9/16=56.25%，实现16:9
+            position: relative;
+            */
+
+            /* 关键：缩放中心点为元素自身中心，缩放时不偏移 */
+            transform-origin: center center;
+            flex-shrink: 0;
+            /* 防止被 flex 容器挤压，保持自身比例/尺寸 */
+
+            background: #fff;
+            background-size: cover;
+            /* 背景图覆盖整个区域，保持比例 */
+            background-position: center;
+            /* 背景图居中显示 */
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            /* 边框计入宽高，避免尺寸偏移 */
+            overflow: auto;
+            /* 内部内容超出时，显示滚动条（横向+纵向） */
+            color: #000000; /* 默认黑色，也可以设为变量 --default-text-color */
+            word-wrap: break-word;
+        }
+
+        .color-preview-container {
+            position: relative;
+            overflow: visible;
+
+        }
+
+        .color-preview-big {
+            height: 60px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            background-image: linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%), linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%);
+            background-size: 16px 16px;
+            background-position: 0 0, 8px 8px;
+            position: relative;
+        }
+
+        .color-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        .color-picker-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .color-picker-btn:hover {
+            background: #fff;
+        }
+
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .slider-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+        }
+
+        .slider-item input[type="range"] {
+            flex: 1;
+            height: 4px;
+            accent-color: var(--primary);
+        }
+
+        .hex-input-box {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: monospace;
+        }
+
+        input[type="color"] {
+            display: none;
+        }
+
+        .color-picker-panel {
+            position: absolute;
+            top: 0;
+            right: 100%;
+            margin-right: 10px;
+            width: 320px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            z-index: 1000;
+            transform: translateX(100%);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .color-picker-panel.show {
+            transform: translateX(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .color-picker-panel h4 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #444;
+        }
+
+        .color-picker-canvas-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            margin-bottom: 10px;
+            cursor: crosshair;
+            overflow: hidden;
+        }
+
+        .color-picker-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .color-picker-hue-slider {
+            width: 100%;
+            height: 20px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            background: linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+        }
+
+        .color-picker-close {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 20px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .color-picker-close:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .color-library-container {
+            position: relative;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .color-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .color-tab {
+            padding: 6px 12px;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font-size: 12px;
+            color: #666;
+            transition: 0.2s;
+            position: relative;
+        }
+
+        .color-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .color-tab:hover {
+            color: var(--primary);
+        }
+
+        .color-tab.drag-over {
+            background: #eef5ff;
+            border-bottom-color: var(--primary);
+            border-bottom-width: 3px;
+        }
+
+        .tab-del-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 14px;
+            height: 14px;
+            background: rgba(255, 0, 0, 0.7);
+            color: #fff;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .color-tab:hover .tab-del-btn {
+            display: flex;
+        }
+
+        .tab-add-btn {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px dashed var(--primary);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--primary);
+            transition: 0.2s;
+        }
+
+        .tab-add-btn:hover {
+            background: #eef5ff;
+        }
+
+        .ui-library {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .color-card {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: 0.1s;
+            position: relative;
+            background: #fff;
+            user-select: none;
+        }
+
+        .color-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .color-card.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .color-card.drag-over {
+            border: 2px dashed var(--primary);
+        }
+
+        .card-swatch {
+            height: 35px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .card-info {
+            padding: 6px;
+            font-size: 11px;
+        }
+
+        .card-del {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(255, 0, 0, 0.7);
+            color: #fff;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            z-index: 10;
+        }
+
+        .color-card:hover .card-del {
+            display: flex;
+        }
+
+        .symbol-manager {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .symbol-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .symbol-tab {
+            padding: 6px 12px;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font-size: 12px;
+            color: #666;
+            transition: 0.2s;
+            position: relative;
+        }
+
+        .symbol-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .symbol-tab:hover {
+            color: var(--primary);
+        }
+
+        .symbol-tab.drag-over {
+            background: #eef5ff;
+            border-bottom-color: var(--primary);
+            border-bottom-width: 3px;
+        }
+
+        .symbol-tab .tab-del-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 14px;
+            height: 14px;
+            background: rgba(255, 0, 0, 0.7);
+            color: #fff;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .symbol-tab:hover .tab-del-btn {
+            display: flex;
+        }
+
+        .symbol-tab .tab-add-btn {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px dashed var(--primary);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--primary);
+            transition: 0.2s;
+        }
+
+        .symbol-tab .tab-add-btn:hover {
+            background: #eef5ff;
+        }
+
+        .symbol-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .symbol-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            padding: 4px;
+            transition: 0.2s;
+            user-select: none;
+        }
+
+        .symbol-card.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .symbol-card.drag-over {
+            border: 2px dashed var(--primary);
+        }
+
+        .symbol-char {
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px 10px;
+        }
+
+        .symbol-char:hover {
+            background: #eef5ff;
+            color: var(--primary);
+        }
+
+        .symbol-ops {
+            display: flex;
+            gap: 6px;
+            border-top: 1px solid #eee;
+            padding-top: 4px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .op-btn {
+            font-size: 10px;
+            cursor: pointer;
+            color: #aaa;
+        }
+
+        .op-btn:hover {
+            color: var(--primary);
+        }
+
+        .add-symbol-btn {
+            width: 40px;
+            height: 50px;
+            border: 1px dashed var(--primary);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 20px;
+        }
+
+        h3 {
+            margin-top: 0;
+            font-size: 16px;
+            color: #444;
+            border-left: 4px solid var(--primary);
+            padding-left: 10px;
+        }
+
+        /* 字符库悬浮窗样式 */
+        .symbol-modal {
+            position: fixed;
+            top: 100px;
+            left: 100px;
+            width: 320px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            z-index: 2000;
+            display: none;
+            /* 默认隐藏 */
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid var(--border);
+            cursor: move;
+            /* 指示可拖拽 */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 14px;
+            border: none;
+            padding: 0;
+        }
+
+        .modal-body {
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        /* 隐藏原本在左侧面板的符号库标题和容器 */
+        #leftSymbolSection {
+            display: none;
+        }
+
+        /* 默认颜色输入框美化 */
+        .default-color-group {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 2px 8px;
+            transition: all 0.3s ease;
+            margin-left: 10px;
+        }
+
+        .default-color-group:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
+        }
+
+        .default-color-group span {
+            font-size: 12px;
+            color: #909399;
+            margin-right: 6px;
+            user-select: none;
+        }
+
+        .default-color-input {
+            border: none;
+            outline: none;
+            font-size: 13px;
+            font-family: 'Consolas', monospace;
+            width: 100px;
+            color: var(--text-main);
+            padding: 4px 0;
+        }
+
+        .color-indicator {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 1px solid #eee;
+            margin-right: 8px;
+            transition: background 0.3s ease;
+        }
